@@ -48,13 +48,21 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const userId = req.params.id;
     try {
+        const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'Auth token is required' });
+        }
+        const decoded = jsonwebtoken_1.default.verify(token, JWT_SECRET || '');
+        if (!decoded) {
+            return res.status(401).json({ message: 'Your token is not valid' });
+        }
         const user = yield User_js_1.default.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        const token = jsonwebtoken_1.default.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
         res.status(200).json({ user });
     }
     catch (e) {

@@ -48,12 +48,21 @@ const getUser = async (req: Request, res: Response) => {
     const userId = req.params.id;
 
     try {
+        const token = req.headers.authorization?.split(' ')[1];
+
+        if (!token) {
+            return res.status(401).json({ message: 'Auth token is required' })
+        }
+
+        const decoded = jwt.verify(token, JWT_SECRET || '');
+        if (!decoded) {
+            return res.status(401).json({ message: 'Your token is not valid' })
+        }
+        
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' })
         }
-
-        const token = jwt.sign({ id: user._id }, JWT_SECRET!, { expiresIn: '1h' })
 
         res.status(200).json({ user })
     } catch (e: any) {

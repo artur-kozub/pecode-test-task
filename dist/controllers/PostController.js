@@ -36,9 +36,9 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         }
         const newPost = new Post_js_1.default({ createdBy, post });
         yield newPost.save();
-        const newPostId = newPost._id;
-        user.posts.push(newPostId);
-        yield user.save();
+        /* const newPostId = newPost._id as Schema.Types.ObjectId; */
+        /* user.posts.push(newPostId); */
+        /* await user.save(); */
         return res.status(201).json({ newPost });
     }
     catch (e) {
