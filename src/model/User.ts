@@ -5,7 +5,6 @@ interface UserDocument extends Document {
     name: string;
     email: string;
     password: string;
-    posts: Array<Schema.Types.ObjectId>;
     comparePassword(password: string): Promise<boolean>;
 }
 
@@ -23,11 +22,7 @@ const userSchema = new Schema<UserDocument>({
     password: {
         type: String,
         required: true
-    },
-    posts: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Post'
-    }]
+    }
 });
 
 userSchema.pre<UserDocument>('save', async function (next) {

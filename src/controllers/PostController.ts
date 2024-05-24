@@ -33,10 +33,6 @@ const createPost = async (req: Request, res: Response) => {
         const newPost = new Post({ createdBy, post });
         await newPost.save();
 
-        const newPostId = newPost._id as Schema.Types.ObjectId;
-        user.posts.push(newPostId);
-        await user.save();
-
         return res.status(201).json({ newPost });
     } catch (e: any) {
         console.error(e);
