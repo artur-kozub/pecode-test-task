@@ -15,24 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const User_js_1 = __importDefault(require("../model/User.js"));
 const Post_js_1 = __importDefault(require("../model/Post.js"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 dotenv_1.default.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     try {
-        const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        if (!token) {
-            return res.status(401).json({ message: 'Auth token is required' });
-        }
-        const decoded = jsonwebtoken_1.default.verify(token, JWT_SECRET || '');
-        if (!decoded) {
-            return res.status(401).json({ message: 'Your token is not valid' });
-        }
         const { post, createdBy } = req.body;
         const user = yield User_js_1.default.findById(createdBy);
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'You are trying to create post, but not authorized, id not found' });
         }
         const newPost = new Post_js_1.default({ createdBy, post });
         yield newPost.save();
@@ -44,16 +34,7 @@ const createPost = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 const getPosts = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
     try {
-        const token = (_b = req.headers.authorization) === null || _b === void 0 ? void 0 : _b.split(' ')[1];
-        if (!token) {
-            return res.status(401).json({ message: 'Auth token is required' });
-        }
-        const decoded = jsonwebtoken_1.default.verify(token, JWT_SECRET || '');
-        if (!decoded) {
-            return res.status(401).json({ message: 'Your token is not valid' });
-        }
         const posts = yield Post_js_1.default.find();
         return res.status(200).json({ posts });
     }
