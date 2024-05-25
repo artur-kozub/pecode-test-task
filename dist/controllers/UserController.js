@@ -14,19 +14,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const User_js_1 = __importDefault(require("../model/User.js"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const generateToken_js_1 = __importDefault(require("../utils/generateToken.js"));
 dotenv_1.default.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 const register = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, email, password } = req.body;
-    const user = new User_js_1.default({ name, email, password });
     try {
+        const userExists = yield User_js_1.default.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({ message: 'User already exists' });
+        }
+        const user = new User_js_1.default({ name, email, password });
         yield user.save();
-        const token = jsonwebtoken_1.default.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-        res.status(201).json({ token });
+        /* const user = await User.create({
+            name,
+            email,
+            password: await bcrypt.hash(password, 10),
+        }) */
+        if (user) {
+            return res.status(201).json({ token: generateToken_js_1.default.generateToken(user._id) });
+        }
+        else {
+            res.status(400).json({ message: 'Invalid user data' });
+        }
     }
     catch (e) {
-        res.status(400).json({ message: e.message });
+        console.error(e.message);
+        res.status(500).json({ message: e.message });
     }
 });
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -34,36 +48,28 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield User_js_1.default.findOne({ email });
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(401).json({ message: 'Invalid email' });
         }
         const isMatch = yield user.comparePassword(password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid password' });
         }
-        const token = jsonwebtoken_1.default.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-        res.status(200).json({ token });
+        res.status(200).json({ token: generateToken_js_1.default.generateToken(user._id) });
     }
     catch (e) {
+        console.error(e.message);
         res.status(500).json({ message: e.message });
     }
 });
 const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const userId = req.params.id;
+    const user = yield User_js_1.default.findById(req.params.id).select('-password');
     try {
-        const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        if (!token) {
-            return res.status(401).json({ message: 'Auth token is required' });
+        if (user) {
+            res.json(user);
         }
-        const decoded = jsonwebtoken_1.default.verify(token, JWT_SECRET || '');
-        if (!decoded) {
-            return res.status(401).json({ message: 'Your token is not valid' });
+        else {
+            res.status(404).json({ message: 'User not found' });
         }
-        const user = yield User_js_1.default.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-        res.status(200).json({ user });
     }
     catch (e) {
         res.status(500).json({ message: e.message });
