@@ -4,8 +4,7 @@ dotenv.config();
 
 const connectDB = async () => {
     try {
-        const uri: string = process.env.MONGO_URI || 'uri_not_valid';
-        await mongoose.connect(uri)
+        await mongoose.connect(process.env.MONGO_URI as string);
         console.log('Mongo connected');
     } catch (e: any) {
         console.log('Mongo connection error: ', e.message);

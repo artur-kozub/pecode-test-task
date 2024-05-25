@@ -51,11 +51,7 @@ const userSchema = new mongoose_1.Schema({
     password: {
         type: String,
         required: true
-    },
-    /* posts: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Post'
-    }] */
+    }
 });
 userSchema.pre('save', function (next) {
     return __awaiter(this, void 0, void 0, function* () {
