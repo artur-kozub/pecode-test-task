@@ -5,6 +5,17 @@ import connectDB from './db';
 import dotenv from 'dotenv';
 dotenv.config();
 
+import 'reflect-metadata';
+import { AppDataSource } from './data-source';
+
+AppDataSource.initialize()
+  .then(() => {
+    console.log('Data Source has been initialized!');
+  })
+  .catch((err) => {
+    console.error('Error during Data Source initialization:', err);
+  });
+
 const app: Application = express();
 const PORT = process.env.PORT;
 
