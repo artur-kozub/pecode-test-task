@@ -9,6 +9,15 @@ const postRoutes_1 = __importDefault(require("./routes/postRoutes"));
 const db_1 = __importDefault(require("./db"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
+require("reflect-metadata");
+const data_source_1 = require("./data-source");
+data_source_1.AppDataSource.initialize()
+    .then(() => {
+    console.log('Data Source has been initialized!');
+})
+    .catch((err) => {
+    console.error('Error during Data Source initialization:', err);
+});
 const app = (0, express_1.default)();
 const PORT = process.env.PORT;
 app.use(express_1.default.json());
